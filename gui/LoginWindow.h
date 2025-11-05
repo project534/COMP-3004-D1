@@ -1,7 +1,7 @@
 #pragma once
 #include <QMainWindow>
 #include <memory>
-#include ".../models/LibrarySystem.h"
+#include "LibrarySystem.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class LoginWindow; }

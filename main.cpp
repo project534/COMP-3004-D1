@@ -1,6 +1,8 @@
 #include <QApplication>
-#include "models/LibrarySystem.h"
-#include "gui/LoginWindow.h"
+#include <memory>
+
+#include "LibrarySystem.h"
+#include "LoginWindow.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);

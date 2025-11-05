@@ -1,7 +1,7 @@
 #include "LoginWindow.h"
 #include "ui_LoginWindow.h"
 #include <QMessageBox>
-#include "gui/PatronWindow.h"
+#include "PatronWindow.h"
 
 LoginWindow::LoginWindow(std::shared_ptr<hinlibs::LibrarySystem> system, QWidget* parent)
     : QMainWindow(parent), ui(new Ui::LoginWindow), system_(std::move(system)) {
