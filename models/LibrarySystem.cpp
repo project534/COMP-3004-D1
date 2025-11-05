@@ -1,251 +1,218 @@
 #include "LibrarySystem.h"
-
-#include "Item.h"
-#include "Book.h"
-#include "Magazine.h"
-#include "Movie.h"
-#include "VideoGame.h"
-
-#include "User.h"
-#include "Patron.h"
-#include "Librarian.h"
-#include "Administrator.h"
-
 #include <algorithm>
-#include <cctype>
 
-// ---------- helpers ----------
-std::string LibrarySystem::toLower(std::string s) {
-    std::transform(s.begin(), s.end(), s.begin(),
-                   [](unsigned char c){ return std::tolower(c); });
-    return s;
+namespace hinlibs {
+
+LibrarySystem::LibrarySystem() {
+    seed();
 }
 
-std::optional<std::chrono::system_clock::time_point> LibrarySystem::dueIn14Days() {
-    using namespace std::chrono;
-    return system_clock::now() + hours{24 * 14};
+std::shared_ptr<User> LibrarySystem::findUserByName(const std::string& name) const {
+    auto it = userIdByName_.find(name);
+    if (it == userIdByName_.end()) return nullptr;
+    auto it2 = usersById_.find(it->second);
+    if (it2 == usersById_.end()) return nullptr;
+    return it2->second;
 }
 
-Item* LibrarySystem::getItem(const std::string& itemId) {
-    auto it = items_.find(itemId);
-    return (it == items_.end()) ? nullptr : it->second.get();
+std::shared_ptr<Patron> LibrarySystem::getPatronById(int patronId) const {
+    auto it = usersById_.find(patronId);
+    if (it == usersById_.end()) return nullptr;
+    if (it->second->role() != Role::Patron) return nullptr;
+    return std::static_pointer_cast<Patron>(it->second);
 }
 
-// ---------- boot / reset ----------
-void LibrarySystem::loadDefaultData() {
-    items_.clear();
-    users_.clear();
-
-    // ----- 5 Fiction Books -----
-    for (int i=1;i<=5;++i) {
-        auto fb = std::make_unique<FictionBook>();
-        fb->id = "FIC" + std::to_string(i);
-        fb->title = "Fiction Title " + std::to_string(i);
-        fb->creator = "Author F" + std::to_string(i);
-        fb->publicationYear = 2000 + i;
-        fb->genre = (i%2==0) ? "Drama" : "Sci-Fi";
-        items_[fb->id] = std::move(fb);
+std::shared_ptr<Item> LibrarySystem::getItemById(int itemId) const {
+    for (auto& it : items_) {
+        if (it->id() == itemId) return it;
     }
-
-    // ----- 5 Non-Fiction Books (Dewey required) -----
-    for (int i=1;i<=5;++i) {
-        auto nfb = std::make_unique<NonFictionBook>();
-        nfb->id = "NFC" + std::to_string(i);
-        nfb->title = "Non-Fiction Title " + std::to_string(i);
-        nfb->creator = "Author NF" + std::to_string(i);
-        nfb->publicationYear = 1990 + i;
-        // simple Dewey samples like "005.13", "320.11", etc.
-        nfb->dewey = (i%2==0) ? "005.13" : "320.11";
-        items_[nfb->id] = std::move(nfb);
-    }
-
-    // ----- 3 Magazines (issue + pub date) -----
-    for (int i=1;i<=3;++i) {
-        auto m = std::make_unique<Magazine>();
-        m->id = "MAG" + std::to_string(i);
-        m->title = "Tech Monthly " + std::to_string(i);
-        m->creator = "Editorial Board";
-        m->issue = 100 + i;
-        m->publicationDate = "2025-0" + std::to_string(i) + "-15";
-        items_[m->id] = std::move(m);
-    }
-
-    // ----- 3 Movies (genre + rating) -----
-    struct { const char* title; const char* genre; const char* rating; } movies[3] = {
-        {"The Algorithm", "Thriller", "PG-13"},
-        {"Deep Space",    "Sci-Fi",   "PG"},
-        {"Quiet City",    "Drama",    "R"}
-    };
-    for (int i=0;i<3;++i) {
-        auto mv = std::make_unique<Movie>();
-        mv->id = "MOV" + std::to_string(i+1);
-        mv->title = movies[i].title;
-        mv->creator = "Director " + std::to_string(i+1);
-        mv->genre = movies[i].genre;
-        mv->rating = movies[i].rating;
-        items_[mv->id] = std::move(mv);
-    }
-
-    // ----- 4 Video Games (genre + rating) -----
-    struct { const char* title; const char* genre; const char* rating; } games[4] = {
-        {"Dungeon Quest", "RPG",       "T"},
-        {"Street Racer",  "Racing",    "E"},
-        {"Battle Ops",    "Shooter",   "M"},
-        {"Puzzle Grid",   "Puzzle",    "E"}
-    };
-    for (int i=0;i<4;++i) {
-        auto vg = std::make_unique<VideoGame>();
-        vg->id = "GME" + std::to_string(i+1);
-        vg->title = games[i].title;
-        vg->creator = "Studio " + std::to_string(i+1);
-        vg->genre = games[i].genre;
-        vg->rating = games[i].rating;
-        items_[vg->id] = std::move(vg);
-    }
-
-    // ----- 5 Patrons + 1 Librarian + 1 Admin -----
-    for (int i=1;i<=5;++i) {
-        auto p = std::make_shared<Patron>();
-        p->id = "pat" + std::to_string(i);
-        p->name = "Patron " + std::to_string(i);
-        users_[toLower(p->name)] = p;
-        users_[toLower(p->id)]   = p; // allow login by ID or name
-    }
-
-    {
-        auto l = std::make_shared<Librarian>();
-        l->id = "lib1";
-        l->name = "Librarian One";
-        users_[toLower(l->name)] = l;
-        users_[toLower(l->id)]   = l;
-    }
-    {
-        auto a = std::make_shared<Administrator>();
-        a->id = "admin1";
-        a->name = "System Administrator";
-        users_[toLower(a->name)] = a;
-        users_[toLower(a->id)]   = a;
-    }
-}
-
-void LibrarySystem::resetForRestart() {
-    // Per spec: all items -> Available; patrons: zero borrowed items
-    for (auto& kv : items_) {
-        Item* it = kv.second.get();
-        it->status = ItemStatus::Available;
-        it->dueDate.reset();
-        it->holdQueue.clear(); // not mandated, but prevents stale queues
-    }
-    for (auto& kv : users_) {
-        if (kv.second->type == UserType::Patron) {
-            auto p = std::static_pointer_cast<Patron>(kv.second);
-            p->activeLoans.clear();
-            p->activeHolds.clear();
-        }
-    }
-}
-
-// ---------- login ----------
-std::shared_ptr<User> LibrarySystem::findUserByName(const std::string& name) {
-    auto it = users_.find(toLower(name));
-    if (it != users_.end()) return it->second;
     return nullptr;
 }
 
-// ---------- patron features ----------
-std::vector<Item*> LibrarySystem::browseCatalogue(bool availableOnly) {
-    std::vector<Item*> out;
-    out.reserve(items_.size());
-    for (auto& kv : items_) {
-        Item* it = kv.second.get();
-        if (!availableOnly || it->status == ItemStatus::Available) {
-            out.push_back(it);
+// --- Patron operations ---
+
+bool LibrarySystem::borrowItem(int patronId, int itemId) {
+    auto patron = getPatronById(patronId);
+    if (!patron) return false;
+
+    auto item = getItemById(itemId);
+    if (!item) return false;
+    if (item->status() != ItemStatus::Available) return false;
+
+    // Enforce queue fairness if holds exist
+    auto hit = holdsByItemId_.find(itemId);
+    if (hit != holdsByItemId_.end() && !hit->second.empty()) {
+        if (hit->second.front() != patronId) {
+            // someone else is first in line
+            return false;
+        } else {
+            // the borrower is first in queue -> pop them
+            hit->second.pop_front();
         }
     }
-    // Optional: sort by title for nicer display
-    std::sort(out.begin(), out.end(), [](Item* a, Item* b){ return a->title < b->title; });
+
+    if (countLoansForPatron(patronId) >= MAX_ACTIVE_LOANS) return false;
+
+    item->setStatus(ItemStatus::CheckedOut);
+    QDate today = QDate::currentDate();
+    Loan loan{ itemId, patronId, today, today.addDays(LOAN_PERIOD_DAYS) };
+    loansByItemId_[itemId] = loan;
+    return true;
+}
+
+bool LibrarySystem::returnItem(int patronId, int itemId) {
+    auto item = getItemById(itemId);
+    if (!item) return false;
+
+    auto it = loansByItemId_.find(itemId);
+    if (it == loansByItemId_.end()) return false;
+    if (it->second.patronId != patronId) return false;
+
+    loansByItemId_.erase(it);
+
+    // D1 behavior: simply mark available (no auto-assign to next hold)
+    item->setStatus(ItemStatus::Available);
+    return true;
+}
+
+bool LibrarySystem::placeHold(int patronId, int itemId) {
+    auto patron = getPatronById(patronId);
+    if (!patron) return false;
+
+    auto item = getItemById(itemId);
+    if (!item) return false;
+
+    // Holds allowed only on checked-out items
+    if (item->status() != ItemStatus::CheckedOut) return false;
+
+    auto& queue = holdsByItemId_[itemId];
+    auto it = std::find(queue.begin(), queue.end(), patronId);
+    if (it != queue.end()) return false; // already in queue
+
+    queue.push_back(patronId);
+    return true;
+}
+
+bool LibrarySystem::cancelHold(int patronId, int itemId) {
+    auto it = holdsByItemId_.find(itemId);
+    if (it == holdsByItemId_.end()) return false;
+
+    auto& queue = it->second;
+    auto qit = std::find(queue.begin(), queue.end(), patronId);
+    if (qit == queue.end()) return false;
+
+    queue.erase(qit); // positions shift automatically
+    // If queue becomes empty, we can optionally erase the entry; not required.
+    if (queue.empty()) holdsByItemId_.erase(it);
+    return true;
+}
+
+std::vector<LibrarySystem::AccountLoan>
+LibrarySystem::getAccountLoans(int patronId, const QDate& today) const {
+    std::vector<AccountLoan> out;
+    for (const auto& kv : loansByItemId_) {
+        const auto& loan = kv.second;
+        if (loan.patronId == patronId) {
+            auto item = getItemById(loan.itemId);
+            if (!item) continue;
+            AccountLoan al;
+            al.itemId = loan.itemId;
+            al.title = item->title();
+            al.dueDate = loan.due;
+            al.daysRemaining = today.daysTo(loan.due);
+            out.push_back(std::move(al));
+        }
+    }
     return out;
 }
 
-bool LibrarySystem::borrowItem(Patron& p, const std::string& itemId) {
-    // Enforce loan cap
-    if ((int)p.activeLoans.size() >= kMaxLoans) return false;
-
-    Item* it = getItem(itemId);
-    if (!it) return false;
-
-    // Item must be Available
-    if (it->status != ItemStatus::Available) return false;
-
-    // If there is a hold queue, enforce FIFO fairness:
-    // Only let the front of the queue borrow (if any), otherwise no one.
-    if (!it->holdQueue.empty()) {
-        if (it->holdQueue.front() != p.id) return false;
-        // If this patron is first, pop them (fulfilling their hold)
-        it->holdQueue.pop_front();
-        // remove from patron's activeHolds list if present
-        auto& holds = p.activeHolds;
-        holds.erase(std::remove(holds.begin(), holds.end(), itemId), holds.end());
+std::vector<LibrarySystem::AccountHold>
+LibrarySystem::getAccountHolds(int patronId) const {
+    std::vector<AccountHold> out;
+    for (const auto& kv : holdsByItemId_) {
+        int itemId = kv.first;
+        const auto& queue = kv.second;
+        auto it = std::find(queue.begin(), queue.end(), patronId);
+        if (it != queue.end()) {
+            auto item = getItemById(itemId);
+            if (!item) continue;
+            AccountHold ah;
+            ah.itemId = itemId;
+            ah.title = item->title();
+            ah.queuePosition = static_cast<int>(std::distance(queue.begin(), it)) + 1;
+            out.push_back(std::move(ah));
+        }
     }
-
-    // All good: borrow it
-    it->status = ItemStatus::CheckedOut;
-    it->dueDate = dueIn14Days();
-    p.activeLoans.push_back(itemId);
-    return true;
+    return out;
 }
 
-bool LibrarySystem::returnItem(Patron& p, const std::string& itemId) {
-    Item* it = getItem(itemId);
-    if (!it) return false;
+// --- helpers ---
 
-    // Patron must currently have this loan
-    if (!p.hasLoan(itemId)) return false;
-
-    // Process return
-    it->status = ItemStatus::Available;
-    it->dueDate.reset();
-
-    // Remove from patron's active loans
-    auto& loans = p.activeLoans;
-    loans.erase(std::remove(loans.begin(), loans.end(), itemId), loans.end());
-
-    // Note: We keep holds queue as-is (FIFO). UI can show that the first in queue
-    // will be able to borrow next; spec doesn’t require “on hold” shelf logic.
-    return true;
+int LibrarySystem::countLoansForPatron(int patronId) const {
+    int count = 0;
+    for (const auto& kv : loansByItemId_) {
+        if (kv.second.patronId == patronId) ++count;
+    }
+    return count;
 }
 
-bool LibrarySystem::placeHold(Patron& p, const std::string& itemId) {
-    Item* it = getItem(itemId);
-    if (!it) return false;
-
-    // Holds allowed only on checked-out items
-    if (it->status != ItemStatus::CheckedOut) return false;
-
-    // Already holding or already borrowed? Don’t duplicate
-    if (p.hasHold(itemId) || p.hasLoan(itemId)) return false;
-
-    // Already in queue?
-    if (std::find(it->holdQueue.begin(), it->holdQueue.end(), p.id) != it->holdQueue.end())
-        return false;
-
-    it->holdQueue.push_back(p.id);
-    p.activeHolds.push_back(itemId);
-    return true;
+bool LibrarySystem::isLoanedBy(int itemId, int patronId) const {
+    auto it = loansByItemId_.find(itemId);
+    return (it != loansByItemId_.end() && it->second.patronId == patronId);
 }
 
-bool LibrarySystem::cancelHold(Patron& p, const std::string& itemId) {
-    Item* it = getItem(itemId);
-    if (!it) return false;
+// --- seed data ---
 
-    // If patron isn’t in the queue, nothing to do
-    auto pos = std::find(it->holdQueue.begin(), it->holdQueue.end(), p.id);
-    if (pos == it->holdQueue.end()) return false;
+void LibrarySystem::seed() {
+    // Users: 5 patrons + 1 librarian + 1 admin
+    // IDs: 1..7
+    auto addUser = [&](int id, std::shared_ptr<User> u) {
+        userIdByName_[u->name()] = id;
+        usersById_[id] = std::move(u);
+    };
 
-    it->holdQueue.erase(pos); // remove from queue
+    addUser(1, std::make_shared<Patron>(1, "Alice"));
+    addUser(2, std::make_shared<Patron>(2, "Bob"));
+    addUser(3, std::make_shared<Patron>(3, "Carmen"));
+    addUser(4, std::make_shared<Patron>(4, "Dinesh"));
+    addUser(5, std::make_shared<Patron>(5, "Eve"));
+    addUser(6, std::make_shared<User>(6, "Librarian", Role::Librarian));
+    addUser(7, std::make_shared<User>(7, "Admin", Role::Administrator));
 
-    // remove from patron’s list
-    auto& holds = p.activeHolds;
-    holds.erase(std::remove(holds.begin(), holds.end(), itemId), holds.end());
-    return true;
+    // Items: total 20
+    int nextId = 100;
+
+    // 5 Fiction books
+    items_.push_back(std::make_shared<Book>(nextId++, "The Silent Forest", "J. Rivera", 2016, BookType::Fiction));
+    items_.push_back(std::make_shared<Book>(nextId++, "City of Glass", "P. Daniels", 2010, BookType::Fiction));
+    items_.push_back(std::make_shared<Book>(nextId++, "North Star", "A. Patel", 2018, BookType::Fiction));
+    items_.push_back(std::make_shared<Book>(nextId++, "Shadows & Light", "M. Hassan", 2021, BookType::Fiction));
+    items_.push_back(std::make_shared<Book>(nextId++, "The Last Harbor", "K. Wong", 2012, BookType::Fiction));
+
+    // 5 Non-fiction books (with Dewey)
+    items_.push_back(std::make_shared<Book>(nextId++, "Quantum Realities", "L. Chen", 2019, BookType::NonFiction, std::string("530.12")));
+    items_.push_back(std::make_shared<Book>(nextId++, "Creative Cooking", "R. Singh", 2015, BookType::NonFiction, std::string("641.59")));
+    items_.push_back(std::make_shared<Book>(nextId++, "World History Abridged", "T. Romero", 2013, BookType::NonFiction, std::string("909.07")));
+    items_.push_back(std::make_shared<Book>(nextId++, "Behavioral Economics", "S. Ahmed", 2017, BookType::NonFiction, std::string("330.01")));
+    items_.push_back(std::make_shared<Book>(nextId++, "Astronomy 101", "C. Martins", 2020, BookType::NonFiction, std::string("520.1")));
+
+    // 3 Magazines (issue + pub date)
+    items_.push_back(std::make_shared<Magazine>(nextId++, "Tech Monthly", "TechHouse", 2024, 142, QDate(2024, 9, 1)));
+    items_.push_back(std::make_shared<Magazine>(nextId++, "Health Weekly", "WellnessPub", 2025, 27, QDate(2025, 10, 15)));
+    items_.push_back(std::make_shared<Magazine>(nextId++, "Art & Design", "Canvas Press", 2025, 5, QDate(2025, 7, 20)));
+
+    // 3 Movies (genre + rating)
+    items_.push_back(std::make_shared<Movie>(nextId++, "Through the Mist", "I. Novak", 2014, "Drama", "PG-13"));
+    items_.push_back(std::make_shared<Movie>(nextId++, "Deep Orbit", "G. Adebayo", 2022, "Sci-Fi", "PG-13"));
+    items_.push_back(std::make_shared<Movie>(nextId++, "Hidden Trail", "S. Yamamoto", 2008, "Thriller", "R"));
+
+    // 4 Video Games (genre + rating)
+    items_.push_back(std::make_shared<VideoGame>(nextId++, "Starfall Odyssey", "NebulaWorks", 2023, "Action RPG", "T"));
+    items_.push_back(std::make_shared<VideoGame>(nextId++, "Garden Realms", "BloomSoft", 2020, "Simulation", "E"));
+    items_.push_back(std::make_shared<VideoGame>(nextId++, "Cipher Run", "VoxelForge", 2019, "Platformer", "E10+"));
+    items_.push_back(std::make_shared<VideoGame>(nextId++, "Kings of Aether", "Crown Labs", 2017, "Strategy", "T"));
+
+    // All items start Available by default (in Item base)
 }
+
+} // namespace hinlibs
