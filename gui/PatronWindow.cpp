@@ -152,3 +152,4 @@ void PatronWindow::populateAccountTables() {
 void PatronWindow::onRefreshAccount() {
     populateAccountTables();
 }
+

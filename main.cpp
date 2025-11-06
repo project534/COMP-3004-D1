@@ -4,7 +4,7 @@
 #include "LibrarySystem.h"
 #include "LoginWindow.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
 
     auto system = std::make_shared<hinlibs::LibrarySystem>();

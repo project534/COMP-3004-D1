@@ -15,9 +15,23 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
-    <item><widget class="QLabel" name="label"><property name="text"><string>Enter your username:</string></property></widget></item>
-    <item><widget class="QLineEdit" name="lineUsername"/></item>
-    <item><widget class="QPushButton" name="btnLogin"><property name="text"><string>Login</string></property></widget></item>
+    <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Enter your username:</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="lineUsername"/>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btnLogin">
+      <property name="text">
+       <string>Login</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
