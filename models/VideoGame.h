@@ -5,13 +5,18 @@ namespace hinlibs {
 
 class VideoGame : public Item {
 public:
-    VideoGame(int id, std::string title, std::string studio, int year,
-              std::string genre, std::string rating);
+    VideoGame(
+            const std::string& title,
+            const std::string& developer,
+            int publicationYear,
+            const std::string& genre,
+            const std::string& rating
+        );
 
-    const std::string& genre() const noexcept { return genre_; }
-    const std::string& rating() const noexcept { return rating_; }
+    const std::string& genre() const noexcept;
+    const std::string& rating() const noexcept ;
 
-    std::string typeName() const override { return "Video Game"; }
+    std::string typeName() const override;
     std::string detailsSummary() const override;
 
 private:

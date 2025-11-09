@@ -1,36 +1,68 @@
 #pragma once
 #include <string>
+#include <QQueue>
+#include <QDate>
 
 namespace hinlibs {
 
-enum class ItemStatus { Available, CheckedOut };
+enum class ItemStatus { Available, CheckedOut, Unavailable };
 enum class ItemKind   { Book, Movie, VideoGame, Magazine };
+enum class Condition {Damaged, Undamaged };
 
 class Item {
 public:
-    Item(int id, std::string title, std::string creator, int year, ItemKind kind);
+    Item(
+         const std::string& title,
+         const std::string& creator,
+         int publicationYear,
+         ItemKind kind
+        );
+
     virtual ~Item() = default;
 
-    int id() const noexcept { return id_; }
-    const std::string& title() const noexcept { return title_; }
-    const std::string& creator() const noexcept { return creator_; }
-    int year() const noexcept { return year_; }
-    ItemKind kind() const noexcept { return kind_; }
+    // Getters
+    int id() const noexcept;
+    const std::string& title() const noexcept;
+    const std::string& creator() const noexcept;
+    int publicationYear() const noexcept;
+    ItemKind kind() const noexcept;
+    ItemStatus status() const noexcept;
+    Condition condition() const noexcept;
+    const QDate& checkoutStart() const noexcept;
+    const QDate& checkoutEnd() const noexcept;
 
-    ItemStatus status() const noexcept { return status_; }
-    void setStatus(ItemStatus s) noexcept { status_ = s; }
+    // Setters
+    void setStatus(ItemStatus s) noexcept;
+    void setCondition(Condition c) noexcept;
+    void setCheckOutAndEndDates(const QDate& start, const QDate& end) noexcept;
+    void setitemQueue(QQueue<int> holdQueue);
+
+    // Queue Operations
+    void addPatronIdToHoldQueue(int patronID);
+    int nextInHoldQueue() const;
+    int removeNextInHoldQueue();
+    void removePatronIdFromHoldQueue(int patronID);
+    bool patronIsInHoldQueue(int patronID) const;
+    int positionInHoldQueue(int patronID) const;
+    int holdQueueSize() const;
 
     // For UI display
     virtual std::string typeName() const = 0;
     virtual std::string detailsSummary() const = 0;
 
 protected:
+    static int item_id;
+
     int id_;
     std::string title_;
     std::string creator_;
-    int year_;
+    int publicationYear_;
     ItemKind kind_;
-    ItemStatus status_{ItemStatus::Available};
+    ItemStatus status_;
+    Condition condition_;
+    QQueue<int> itemQueue_;
+    QDate checkoutStart_;
+    QDate checkoutEnd_;
 };
 
 } // namespace hinlibs
