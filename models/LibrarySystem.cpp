@@ -180,37 +180,36 @@ void LibrarySystem::seed() {
     addUser(7, std::make_shared<User>(7, "Admin", Role::Administrator));
 
     // Items: total 20
-    int nextId = 100;
 
     // 5 Fiction books
-    items_.push_back(std::make_shared<Book>(nextId++, "The Silent Forest", "J. Rivera", 2016, BookType::Fiction));
-    items_.push_back(std::make_shared<Book>(nextId++, "City of Glass", "P. Daniels", 2010, BookType::Fiction));
-    items_.push_back(std::make_shared<Book>(nextId++, "North Star", "A. Patel", 2018, BookType::Fiction));
-    items_.push_back(std::make_shared<Book>(nextId++, "Shadows & Light", "M. Hassan", 2021, BookType::Fiction));
-    items_.push_back(std::make_shared<Book>(nextId++, "The Last Harbor", "K. Wong", 2012, BookType::Fiction));
+    items_.push_back(std::make_shared<Book>("The Silent Forest", "J. Rivera", 2016, BookType::Fiction));
+    items_.push_back(std::make_shared<Book>("City of Glass", "P. Daniels", 2010, BookType::Fiction));
+    items_.push_back(std::make_shared<Book>("North Star", "A. Patel", 2018, BookType::Fiction));
+    items_.push_back(std::make_shared<Book>("Shadows & Light", "M. Hassan", 2021, BookType::Fiction));
+    items_.push_back(std::make_shared<Book>("The Last Harbor", "K. Wong", 2012, BookType::Fiction));
 
     // 5 Non-fiction books (with Dewey)
-    items_.push_back(std::make_shared<Book>(nextId++, "Quantum Realities", "L. Chen", 2019, BookType::NonFiction, std::string("530.12")));
-    items_.push_back(std::make_shared<Book>(nextId++, "Creative Cooking", "R. Singh", 2015, BookType::NonFiction, std::string("641.59")));
-    items_.push_back(std::make_shared<Book>(nextId++, "World History Abridged", "T. Romero", 2013, BookType::NonFiction, std::string("909.07")));
-    items_.push_back(std::make_shared<Book>(nextId++, "Behavioral Economics", "S. Ahmed", 2017, BookType::NonFiction, std::string("330.01")));
-    items_.push_back(std::make_shared<Book>(nextId++, "Astronomy 101", "C. Martins", 2020, BookType::NonFiction, std::string("520.1")));
+    items_.push_back(std::make_shared<Book>("Quantum Realities", "L. Chen", 2019, BookType::NonFiction, std::string("530.12")));
+    items_.push_back(std::make_shared<Book>("Creative Cooking", "R. Singh", 2015, BookType::NonFiction, std::string("641.59")));
+    items_.push_back(std::make_shared<Book>("World History Abridged", "T. Romero", 2013, BookType::NonFiction, std::string("909.07")));
+    items_.push_back(std::make_shared<Book>("Behavioral Economics", "S. Ahmed", 2017, BookType::NonFiction, std::string("330.01")));
+    items_.push_back(std::make_shared<Book>("Astronomy 101", "C. Martins", 2020, BookType::NonFiction, std::string("520.1")));
 
     // 3 Magazines (issue + pub date)
-    items_.push_back(std::make_shared<Magazine>(nextId++, "Tech Monthly", "TechHouse", 2024, 142, QDate(2024, 9, 1)));
-    items_.push_back(std::make_shared<Magazine>(nextId++, "Health Weekly", "WellnessPub", 2025, 27, QDate(2025, 10, 15)));
-    items_.push_back(std::make_shared<Magazine>(nextId++, "Art & Design", "Canvas Press", 2025, 5, QDate(2025, 7, 20)));
+    items_.push_back(std::make_shared<Magazine>("Tech Monthly", "TechHouse", 2024, 142, QDate(2024, 9, 1)));
+    items_.push_back(std::make_shared<Magazine>("Health Weekly", "WellnessPub", 2025, 27, QDate(2025, 10, 15)));
+    items_.push_back(std::make_shared<Magazine>("Art & Design", "Canvas Press", 2025, 5, QDate(2025, 7, 20)));
 
     // 3 Movies (genre + rating)
-    items_.push_back(std::make_shared<Movie>(nextId++, "Through the Mist", "I. Novak", 2014, "Drama", "PG-13"));
-    items_.push_back(std::make_shared<Movie>(nextId++, "Deep Orbit", "G. Adebayo", 2022, "Sci-Fi", "PG-13"));
-    items_.push_back(std::make_shared<Movie>(nextId++, "Hidden Trail", "S. Yamamoto", 2008, "Thriller", "R"));
+    items_.push_back(std::make_shared<Movie>("Through the Mist", "I. Novak", 2014, "Drama", "PG-13"));
+    items_.push_back(std::make_shared<Movie>("Deep Orbit", "G. Adebayo", 2022, "Sci-Fi", "PG-13"));
+    items_.push_back(std::make_shared<Movie>("Hidden Trail", "S. Yamamoto", 2008, "Thriller", "R"));
 
     // 4 Video Games (genre + rating)
-    items_.push_back(std::make_shared<VideoGame>(nextId++, "Starfall Odyssey", "NebulaWorks", 2023, "Action RPG", "T"));
-    items_.push_back(std::make_shared<VideoGame>(nextId++, "Garden Realms", "BloomSoft", 2020, "Simulation", "E"));
-    items_.push_back(std::make_shared<VideoGame>(nextId++, "Cipher Run", "VoxelForge", 2019, "Platformer", "E10+"));
-    items_.push_back(std::make_shared<VideoGame>(nextId++, "Kings of Aether", "Crown Labs", 2017, "Strategy", "T"));
+    items_.push_back(std::make_shared<VideoGame>("Starfall Odyssey", "NebulaWorks", 2023, "Action RPG", "T"));
+    items_.push_back(std::make_shared<VideoGame>("Garden Realms", "BloomSoft", 2020, "Simulation", "E"));
+    items_.push_back(std::make_shared<VideoGame>("Cipher Run", "VoxelForge", 2019, "Platformer", "E10+"));
+    items_.push_back(std::make_shared<VideoGame>("Kings of Aether", "Crown Labs", 2017, "Strategy", "T"));
 
     // All items start Available by default (in Item base)
 }

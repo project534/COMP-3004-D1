@@ -3,15 +3,34 @@
 
 namespace hinlibs {
 
-Movie::Movie(int id, std::string title, std::string director, int year,
-             std::string genre, std::string rating)
-    : Item(id, std::move(title), std::move(director), year, ItemKind::Movie),
-      genre_(std::move(genre)), rating_(std::move(rating)) {}
+Movie::Movie(
+        const std::string& title,
+        const std::string& director,
+        int publicationYear,
+        const std::string& genre,
+        const std::string& rating
+        ): Item(title, director, publicationYear, ItemKind::Movie),
+    genre_(genre), rating_(rating){}
+
+const std::string& Movie::genre() const noexcept {
+    return genre_;
+}
+
+const std::string& Movie::rating() const noexcept {
+    return rating_;
+}
+
+std::string Movie::typeName() const {
+    return "Movie";
+}
 
 std::string Movie::detailsSummary() const {
     std::ostringstream oss;
-    oss << "Director: " << creator_ << " | Year: " << year_
-        << " | Genre: " << genre_ << " | Rating: " << rating_;
+    oss << "Title: " << title_
+        << " | Director: " << creator_
+        << " | Publication Year: " << publicationYear_
+        << " | Genre: " << genre_
+        << " | Rating: " << rating_;
     return oss.str();
 }
 

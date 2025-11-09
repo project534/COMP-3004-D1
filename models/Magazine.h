@@ -1,18 +1,24 @@
 #pragma once
 #include "Item.h"
 #include <QDate>
+#include <string>
 
 namespace hinlibs {
 
 class Magazine : public Item {
 public:
-    Magazine(int id, std::string title, std::string publisher, int year,
-             int issueNumber, QDate publicationDate);
+    Magazine(
+            const std::string& title,
+            const std::string& publisher,
+            int publicationYear,
+            int issueNumber,
+            const QDate& publicationDate
+            );
 
-    int issueNumber() const noexcept { return issueNumber_; }
-    const QDate& publicationDate() const noexcept { return publicationDate_; }
+    int issueNumber() const noexcept;
+    const QDate& publicationDate() const noexcept;
 
-    std::string typeName() const override { return "Magazine"; }
+    std::string typeName() const override;
     std::string detailsSummary() const override;
 
 private:
