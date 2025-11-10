@@ -27,6 +27,7 @@ private slots:
     void onReturn();
     void onCancelHold();
     void onRefreshAccount();
+    void onLogOut();
 
 private:
     void populateAccountTables();

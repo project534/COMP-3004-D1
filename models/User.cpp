@@ -2,7 +2,9 @@
 
 namespace hinlibs {
 
-User::User(int id, std::string name, Role role)
-    : id_(id), name_(std::move(name)), role_(role) {}
+int User::user_id = 0;
+
+User::User(std::string name, Role role)
+    : id_(++user_id), name_(std::move(name)), role_(role) {}
 
 } // namespace hinlibs
