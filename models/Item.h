@@ -34,17 +34,6 @@ public:
     // Setters
     void setStatus(ItemStatus s) noexcept;
     void setCondition(Condition c) noexcept;
-    void setCheckOutAndEndDates(const QDate& start, const QDate& end) noexcept;
-    void setitemQueue(QQueue<int> holdQueue);
-
-    // Queue Operations
-    void addPatronIdToHoldQueue(int patronID);
-    int nextInHoldQueue() const;
-    int removeNextInHoldQueue();
-    void removePatronIdFromHoldQueue(int patronID);
-    bool patronIsInHoldQueue(int patronID) const;
-    int positionInHoldQueue(int patronID) const;
-    int holdQueueSize() const;
 
     // For UI display
     virtual std::string typeName() const = 0;
@@ -60,9 +49,6 @@ protected:
     ItemKind kind_;
     ItemStatus status_;
     Condition condition_;
-    QQueue<int> itemQueue_;
-    QDate checkoutStart_;
-    QDate checkoutEnd_;
 };
 
 } // namespace hinlibs
