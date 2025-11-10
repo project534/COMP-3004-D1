@@ -1,6 +1,8 @@
 #include "PatronWindow.h"
 #include "ui_PatronWindow.h"
 #include "CatalogueModel.h"
+#include "LoginWindow.h"
+
 
 #include <QPushButton>
 #include <QAbstractItemView>
@@ -37,6 +39,9 @@ PatronWindow::PatronWindow(std::shared_ptr<hinlibs::LibrarySystem> system,
     connect(ui->btnReturn, &QPushButton::clicked, this, &PatronWindow::onReturn);
     connect(ui->btnCancelHold, &QPushButton::clicked, this, &PatronWindow::onCancelHold);
     connect(ui->btnRefreshAccount, &QPushButton::clicked, this, &PatronWindow::onRefreshAccount);
+    connect(ui->logoutBtn, &QPushButton::clicked, this, &PatronWindow::onLogOut);
+
+
 
     populateAccountTables();
 }
@@ -153,3 +158,10 @@ void PatronWindow::onRefreshAccount() {
     populateAccountTables();
 }
 
+void PatronWindow::onLogOut() {
+    close();
+
+    auto* newLogin = new LoginWindow(system_, nullptr);
+    newLogin->setAttribute(Qt::WA_DeleteOnClose);
+    newLogin->show();
+}
