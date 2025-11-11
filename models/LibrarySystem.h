@@ -35,6 +35,10 @@ public:
     bool placeHold(int patronId, int itemId);
     bool cancelHold(int patronId, int itemId);
 
+    // log of patron transaction operations
+    void logUserActivity(int patronID, const std::string& activity);
+    std::vector<std::string> getPatronUserActivities(int patronID) const;
+
     struct AccountLoan {
         int itemId;
         std::string title;
@@ -68,6 +72,7 @@ private:
     std::unordered_map<std::string, int> userIdByName_;           // case-sensitive exact match (D1)
     std::unordered_map<int, Loan> loansByItemId_;                 // itemId -> loan
     std::unordered_map<int, std::deque<int>> holdsByItemId_;      // itemId -> FIFO patronIds
+    std::unordered_map<int, std::vector<std::string>> log_of_user_activites;  // Trak patron system activites
 
     // helpers
     void seed();

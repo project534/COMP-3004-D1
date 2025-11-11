@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>
-    <height>600</height>
+    <width>968</width>
+    <height>1097</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -68,7 +68,7 @@
     <item>
      <widget class="QGroupBox" name="accountGroup">
       <property name="title">
-       <string>My Account</string>
+       <string>My Account  </string>
       </property>
       <layout class="QVBoxLayout" name="accountLayout">
        <item>
@@ -82,7 +82,7 @@
         <widget class="QTableView" name="loansTable"/>
        </item>
        <item>
-        <widget class="QLabel" name="lblHolds">
+        <widget class="QLabel" name="lblHolds_2">
          <property name="text">
           <string>Active Holds</string>
          </property>
@@ -92,17 +92,14 @@
         <widget class="QTableView" name="holdsTable"/>
        </item>
        <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
+        <widget class="QLabel" name="lblLogs">
+         <property name="text">
+          <string>User Log History</string>
          </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableView" name="logsTable"/>
        </item>
        <item>
         <layout class="QHBoxLayout" name="accountButtons">
@@ -159,7 +156,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>900</width>
+     <width>968</width>
      <height>22</height>
     </rect>
    </property>
