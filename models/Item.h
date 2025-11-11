@@ -28,8 +28,6 @@ public:
     ItemKind kind() const noexcept;
     ItemStatus status() const noexcept;
     Condition condition() const noexcept;
-    const QDate& checkoutStart() const noexcept;
-    const QDate& checkoutEnd() const noexcept;
 
     // Setters
     void setStatus(ItemStatus s) noexcept;

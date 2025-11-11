@@ -161,6 +161,27 @@ bool LibrarySystem::isLoanedBy(int itemId, int patronId) const {
     return (it != loansByItemId_.end() && it->second.patronId == patronId);
 }
 
+
+// log of patron transaction operations
+void LibrarySystem::logUserActivity(int patronID, const std::string& activity) {
+    QDateTime currentDateAndTime= QDateTime::currentDateTime();
+    std::string currentDateAndTimeStringWithActivity = currentDateAndTime.toString("yyyy-MM-dd hh:mm:ss").toStdString() + " " + activity;
+    log_of_user_activites[patronID].push_back(currentDateAndTimeStringWithActivity);
+};
+
+std::vector<std::string> LibrarySystem::getPatronUserActivities(int patronID) const {
+    auto find_id = log_of_user_activites.find(patronID);
+    if(find_id != log_of_user_activites.end()){
+        return find_id->second;
+    };
+    std::vector<std::string>  empty;
+    return empty;
+};
+
+
+
+
+
 // --- seed data ---
 
 void LibrarySystem::seed() {
