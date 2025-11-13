@@ -62,7 +62,7 @@ void PatronWindow::onBorrow() {
                              "Cannot borrow this item (unavailable, queue fairness, or loan limit).");
         return;
     }
-    system_->logUserActivity(patron_->id(), "Borrowed Item with Id " + std::to_string(itemId));
+//    system_->logUserActivity(patron_->id(), "Borrowed Item with Id " + std::to_string(itemId));
     onRefreshBrowse();
     populateAccountTables();
 }
@@ -74,12 +74,18 @@ void PatronWindow::onPlaceHold() {
     const int itemId = catalogueModel_->itemIdAtRow(row);
     if (itemId < 0) return;
 
+    if(system_->isLoanedBy(patron_->id(), itemId)){
+        QMessageBox::warning(this, "Place Hold Failed",
+                             "You can not place a hold on an item you have already checked-out.");
+        return;
+    }
+
     if (!system_->placeHold(patron_->id(), itemId)) {
         QMessageBox::warning(this, "Place Hold Failed",
                              "Holds are only allowed on checked-out items, and duplicates are not allowed.");
         return;
     }
-    system_->logUserActivity(patron_->id(), "Placed hold on Item with Id " + std::to_string(itemId));
+//    system_->logUserActivity(patron_->id(), "Placed hold on Item with Id " + std::to_string(itemId));
     populateAccountTables();
 }
 
@@ -100,7 +106,7 @@ void PatronWindow::onReturn() {
         QMessageBox::warning(this, "Return Failed", "This item is not loaned by you.");
         return;
     }
-    system_->logUserActivity(patron_->id(), "Returned Item with Id " + std::to_string(itemId));
+//    system_->logUserActivity(patron_->id(), "Returned Item with Id " + std::to_string(itemId));
     populateAccountTables();
     onRefreshBrowse();
 }
@@ -115,7 +121,7 @@ void PatronWindow::onCancelHold() {
         QMessageBox::warning(this, "Cancel Hold Failed", "Could not cancel this hold.");
         return;
     }
-    system_->logUserActivity(patron_->id(), "Cancelled hold on Item with Id " + std::to_string(itemId));
+//    system_->logUserActivity(patron_->id(), "Cancelled hold on Item with Id " + std::to_string(itemId));
     populateAccountTables();
 }
 
@@ -158,19 +164,19 @@ void PatronWindow::populateAccountTables() {
     ui->holdsTable->horizontalHeader()->setStretchLastSection(true);
 
     // logs
-    auto logs = system_->getPatronUserActivities(patron_->id());
-    auto* logsModel = new QStandardItemModel(this);
-    logsModel->setHorizontalHeaderLabels({"User Account Activities"});
-    for (const auto& l : logs) {
-        QList<QStandardItem*> row;
-        row << new QStandardItem(QString::fromStdString(l));
-        logsModel->appendRow(row);
-    }
-    ui->logsTable->setModel(logsModel);
-    ui->logsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->logsTable->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->logsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->logsTable->horizontalHeader()->setStretchLastSection(true);
+//    auto logs = system_->getPatronUserActivities(patron_->id());
+//    auto* logsModel = new QStandardItemModel(this);
+//    logsModel->setHorizontalHeaderLabels({"User Account Activities"});
+//    for (const auto& l : logs) {
+//        QList<QStandardItem*> row;
+//        row << new QStandardItem(QString::fromStdString(l));
+//        logsModel->appendRow(row);
+//    }
+//    ui->logsTable->setModel(logsModel);
+//    ui->logsTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+//    ui->logsTable->setSelectionMode(QAbstractItemView::SingleSelection);
+//    ui->logsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+//    ui->logsTable->horizontalHeader()->setStretchLastSection(true);
 }
 
 void PatronWindow::onRefreshAccount() {

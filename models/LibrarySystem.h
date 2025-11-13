@@ -34,10 +34,11 @@ public:
     bool returnItem(int patronId, int itemId);
     bool placeHold(int patronId, int itemId);
     bool cancelHold(int patronId, int itemId);
+    bool isLoanedBy(int itemId, int patronId) const;
 
-    // log of patron transaction operations
-    void logUserActivity(int patronID, const std::string& activity);
-    std::vector<std::string> getPatronUserActivities(int patronID) const;
+//    // log of patron transaction operations
+//    void logUserActivity(int patronID, const std::string& activity);
+//    std::vector<std::string> getPatronUserActivities(int patronID) const;
 
     struct AccountLoan {
         int itemId;
@@ -72,12 +73,12 @@ private:
     std::unordered_map<std::string, int> userIdByName_;           // case-sensitive exact match (D1)
     std::unordered_map<int, Loan> loansByItemId_;                 // itemId -> loan
     std::unordered_map<int, std::deque<int>> holdsByItemId_;      // itemId -> FIFO patronIds
-    std::unordered_map<int, std::vector<std::string>> log_of_user_activites;  // Trak patron system activites
+//    std::unordered_map<int, std::vector<std::string>> log_of_user_activites;  // Track patron system activites
 
     // helpers
     void seed();
     int countLoansForPatron(int patronId) const;
-    bool isLoanedBy(int itemId, int patronId) const;
+
     static int daysBetween(const QDate& a, const QDate& b) { return a.daysTo(b); }
 };
 

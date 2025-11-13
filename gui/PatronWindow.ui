@@ -92,16 +92,6 @@
         <widget class="QTableView" name="holdsTable"/>
        </item>
        <item>
-        <widget class="QLabel" name="lblLogs">
-         <property name="text">
-          <string>User Log History</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTableView" name="logsTable"/>
-       </item>
-       <item>
         <layout class="QHBoxLayout" name="accountButtons">
          <item>
           <spacer name="spacerAccount">

@@ -82,6 +82,7 @@ bool LibrarySystem::placeHold(int patronId, int itemId) {
     auto item = getItemById(itemId);
     if (!item) return false;
 
+    if(isLoanedBy(itemId, patronId)) return false;
     // Holds allowed only on checked-out items
     if (item->status() != ItemStatus::CheckedOut) return false;
 
@@ -163,20 +164,20 @@ bool LibrarySystem::isLoanedBy(int itemId, int patronId) const {
 
 
 // log of patron transaction operations
-void LibrarySystem::logUserActivity(int patronID, const std::string& activity) {
-    QDateTime currentDateAndTime= QDateTime::currentDateTime();
-    std::string currentDateAndTimeStringWithActivity = currentDateAndTime.toString("yyyy-MM-dd hh:mm:ss").toStdString() + " " + activity;
-    log_of_user_activites[patronID].push_back(currentDateAndTimeStringWithActivity);
-};
+//void LibrarySystem::logUserActivity(int patronID, const std::string& activity) {
+//    QDateTime currentDateAndTime= QDateTime::currentDateTime();
+//    std::string currentDateAndTimeStringWithActivity = currentDateAndTime.toString("yyyy-MM-dd hh:mm:ss").toStdString() + " " + activity;
+//    log_of_user_activites[patronID].push_back(currentDateAndTimeStringWithActivity);
+//};
 
-std::vector<std::string> LibrarySystem::getPatronUserActivities(int patronID) const {
-    auto find_id = log_of_user_activites.find(patronID);
-    if(find_id != log_of_user_activites.end()){
-        return find_id->second;
-    };
-    std::vector<std::string>  empty;
-    return empty;
-};
+//std::vector<std::string> LibrarySystem::getPatronUserActivities(int patronID) const {
+//    auto find_id = log_of_user_activites.find(patronID);
+//    if(find_id != log_of_user_activites.end()){
+//        return find_id->second;
+//    };
+//    std::vector<std::string>  empty;
+//    return empty;
+//};
 
 
 
